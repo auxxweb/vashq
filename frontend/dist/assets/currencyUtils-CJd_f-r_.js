@@ -1,0 +1,1 @@
+function i(t,n="USD"){const r=Number(t);if(isNaN(r))return"0.00";const e=(n||"USD").toUpperCase();try{return new Intl.NumberFormat("en-US",{style:"currency",currency:e,minimumFractionDigits:2,maximumFractionDigits:2}).format(r)}catch{return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2}).format(r)}}export{i as f};

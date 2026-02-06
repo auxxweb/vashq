@@ -115,6 +115,31 @@ A production-ready, multi-tenant SaaS platform for managing car wash businesses 
 5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
+## 🚢 Production deployment
+
+### Backend (production)
+
+1. Set **NODE_ENV=production** in your host (e.g. PM2, Docker, or platform env).
+2. Copy `backend/.env.example` to `.env` and set:
+   - **MONGODB_URI** – production MongoDB URL
+   - **JWT_SECRET** – strong secret (min 32 chars)
+   - **FRONTEND_URL** – your frontend origin(s), e.g. `https://app.yourdomain.com` (comma-separated if multiple)
+3. Install and start:
+   ```bash
+   cd backend && npm install --omit=dev && node server.js
+   ```
+4. Production behaviour: gzip **compression**, **helmet** security headers, **rate limiting** (100 req/15 min per IP), CORS restricted to **FRONTEND_URL**, request body limit 512kb, no stack traces in API errors.
+
+### Frontend (production)
+
+1. Set **VITE_API_URL** to your backend API base URL (e.g. `https://api.yourdomain.com/api`) in build env or `.env.production`.
+2. Build:
+   ```bash
+   cd frontend && npm install && npm run build
+   ```
+3. Serve the `frontend/dist` folder with any static host (Nginx, Vercel, Netlify, etc.).
+4. Build optimisations: **code splitting** (lazy routes + vendor chunks), **minification**, **console/debugger stripped**, **es2020** target.
+
 ## 🔐 Creating Super Admin
 
 To create the first Super Admin user, you can use MongoDB directly or create a script:

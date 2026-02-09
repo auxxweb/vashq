@@ -1,48 +1,44 @@
-import { useEffect, Suspense, lazy } from 'react'
+import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { getCurrentUser } from './store/slices/authSlice'
 import { setTheme } from './store/slices/themeSlice'
 
-// Lazy-loaded pages for code splitting and smaller initial bundle
-const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
-const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'))
-const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'))
-const SuperAdminDashboard = lazy(() => import('./pages/super-admin/Dashboard'))
-const SuperAdminBusinesses = lazy(() => import('./pages/super-admin/Businesses'))
-const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'))
-const AdminJobs = lazy(() => import('./pages/admin/Jobs'))
-const AdminJobsNew = lazy(() => import('./pages/admin/JobsNew'))
-const AdminJobsDetail = lazy(() => import('./pages/admin/JobsDetail'))
-const AdminCustomers = lazy(() => import('./pages/admin/Customers'))
-const AdminCars = lazy(() => import('./pages/admin/Cars'))
-const AdminServices = lazy(() => import('./pages/admin/Services'))
-const AdminNotifications = lazy(() => import('./pages/admin/Notifications'))
-const AdminSettings = lazy(() => import('./pages/admin/Settings'))
-const AdminWhatsAppSettings = lazy(() => import('./pages/admin/WhatsAppSettings'))
-const AdminMyPlan = lazy(() => import('./pages/admin/MyPlan'))
-const AdminHelpSupport = lazy(() => import('./pages/admin/HelpSupport'))
-const SuperAdminSupport = lazy(() => import('./pages/super-admin/Support'))
-const SuperAdminSettings = lazy(() => import('./pages/super-admin/Settings'))
-const SuperAdminSubscriptionPlans = lazy(() => import('./pages/super-admin/SubscriptionPlans'))
-const SuperAdminUpgradeRequests = lazy(() => import('./pages/super-admin/UpgradeRequests'))
+// Pages
+import LoginPage from './pages/auth/LoginPage'
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
+import ResetPasswordPage from './pages/auth/ResetPasswordPage'
+import SuperAdminDashboard from './pages/super-admin/Dashboard'
+import SuperAdminBusinesses from './pages/super-admin/Businesses'
+import AdminDashboard from './pages/admin/Dashboard'
+import AdminJobs from './pages/admin/Jobs'
+import AdminJobsNew from './pages/admin/JobsNew'
+import AdminJobsDetail from './pages/admin/JobsDetail'
+import AdminCustomers from './pages/admin/Customers'
+import AdminCars from './pages/admin/Cars'
+import AdminServices from './pages/admin/Services'
+import AdminNotifications from './pages/admin/Notifications'
+import AdminSettings from './pages/admin/Settings'
+import AdminWhatsAppSettings from './pages/admin/WhatsAppSettings'
+import AdminMyPlan from './pages/admin/MyPlan'
+import AdminHelpSupport from './pages/admin/HelpSupport'
+import SuperAdminSupport from './pages/super-admin/Support'
+import SuperAdminSettings from './pages/super-admin/Settings'
+import SuperAdminSubscriptionPlans from './pages/super-admin/SubscriptionPlans'
+import SuperAdminUpgradeRequests from './pages/super-admin/UpgradeRequests'
 
-const SuperAdminLayout = lazy(() => import('./layouts/SuperAdminLayout'))
-const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
+// Layouts
+import SuperAdminLayout from './layouts/SuperAdminLayout'
+import AdminLayout from './layouts/AdminLayout'
 
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-[60vh]" aria-busy="true">
-    <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent" />
-  </div>
-)
-
+// Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, user, loading } = useSelector((state) => state.auth)
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     )
   }
@@ -60,13 +56,16 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 function App() {
   const dispatch = useDispatch()
+  const { theme } = useSelector((state) => state.theme)
 
   useEffect(() => {
+    // Initialize theme
     const storedTheme = localStorage.getItem('theme')
     if (storedTheme) {
       dispatch(setTheme(storedTheme))
     }
 
+    // Try to get current user if token exists
     const token = localStorage.getItem('token')
     if (token) {
       dispatch(getCurrentUser())
@@ -74,58 +73,61 @@ function App() {
   }, [dispatch])
 
   useEffect(() => {
+    // Light theme only (Ontrack-style design)
     document.documentElement.classList.remove('dark')
   }, [])
 
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        <Route
-          path="/super-admin/*"
-          element={
-            <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
-              <SuperAdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<SuperAdminDashboard />} />
-          <Route path="businesses" element={<SuperAdminBusinesses />} />
-          <Route path="subscription-plans" element={<SuperAdminSubscriptionPlans />} />
-          <Route path="upgrade-requests" element={<SuperAdminUpgradeRequests />} />
-          <Route path="support" element={<SuperAdminSupport />} />
-          <Route path="settings" element={<SuperAdminSettings />} />
-        </Route>
+      {/* Super Admin Routes */}
+      <Route
+        path="/super-admin/*"
+        element={
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+            <SuperAdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<SuperAdminDashboard />} />
+        <Route path="businesses" element={<SuperAdminBusinesses />} />
+        <Route path="subscription-plans" element={<SuperAdminSubscriptionPlans />} />
+        <Route path="upgrade-requests" element={<SuperAdminUpgradeRequests />} />
+        <Route path="support" element={<SuperAdminSupport />} />
+        <Route path="settings" element={<SuperAdminSettings />} />
+      </Route>
 
-        <Route
-          path="/admin/*"
-          element={
-            <ProtectedRoute allowedRoles={['CAR_WASH_ADMIN']}>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="jobs" element={<AdminJobs />} />
-          <Route path="jobs/new" element={<AdminJobsNew />} />
-          <Route path="jobs/:id" element={<AdminJobsDetail />} />
-          <Route path="customers" element={<AdminCustomers />} />
-          <Route path="cars" element={<AdminCars />} />
-          <Route path="services" element={<AdminServices />} />
-          <Route path="notifications" element={<AdminNotifications />} />
-          <Route path="my-plan" element={<AdminMyPlan />} />
-          <Route path="whatsapp-settings" element={<AdminWhatsAppSettings />} />
-          <Route path="help-support" element={<AdminHelpSupport />} />
-          <Route path="settings" element={<AdminSettings />} />
-        </Route>
+      {/* Car Wash Admin Routes */}
+      <Route
+        path="/admin/*"
+        element={
+          <ProtectedRoute allowedRoles={['CAR_WASH_ADMIN']}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<AdminDashboard />} />
+        <Route path="jobs" element={<AdminJobs />} />
+        <Route path="jobs/new" element={<AdminJobsNew />} />
+        <Route path="jobs/:id" element={<AdminJobsDetail />} />
+        <Route path="customers" element={<AdminCustomers />} />
+        <Route path="cars" element={<AdminCars />} />
+        <Route path="services" element={<AdminServices />} />
+        <Route path="notifications" element={<AdminNotifications />} />
+        <Route path="my-plan" element={<AdminMyPlan />} />
+        <Route path="whatsapp-settings" element={<AdminWhatsAppSettings />} />
+        <Route path="help-support" element={<AdminHelpSupport />} />
+        <Route path="settings" element={<AdminSettings />} />
+      </Route>
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Suspense>
+      {/* Default redirect */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   )
 }
 
